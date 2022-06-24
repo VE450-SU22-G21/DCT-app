@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import { BottomNavigation, Text, Provider, Appbar, Card, Avatar, Divider, List } from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
 const TracingRoute = () => <>
@@ -82,9 +83,9 @@ const MeRoute = () => <></>;
 const Navigation = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    {key: 'tracing', title: 'Tracing', icon: 'chat'},
-    {key: 'symptom', title: 'Symptom', icon: 'chat'},
-    {key: 'help', title: 'Help', icon: 'chat'},
+    {key: 'tracing', title: 'Tracing', icon: 'my-location'},
+    {key: 'symptom', title: 'Symptom', icon: 'medical-services'},
+    {key: 'help', title: 'Help', icon: 'help'},
     // {key: 'chat', title: 'Chats', icon: 'chat', badge: 99},
     // {key: 'contacts', title: 'Contacts', icon: 'contacts'},
     // {key: 'discover', title: 'Discover', icon: 'compass'},
@@ -112,7 +113,9 @@ function HomeScreen() {
     // <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
     //   <Text>Home Screen</Text>
     // </View>
-    <Provider>
+    <Provider settings={{
+      icon: props => <MaterialIcons {...props} />,
+    }}>
       <Navigation/>
     </Provider>
   );
