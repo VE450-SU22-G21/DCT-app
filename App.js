@@ -18,6 +18,7 @@ import {
 import HomeScreen from './src/screens/Home';
 import WelcomeScreen from './src/screens/Wecome';
 import SubmissionScreen from './src/screens/Submission';
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,9 @@ export default function App() {
     //   <Text>Open up App.js to start working on your app!</Text>
     //   <StatusBar style="auto" />
     // </View>
+    <Provider settings={{
+      icon: props => <MaterialIcons {...props} />,
+    }}>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -34,6 +38,7 @@ export default function App() {
         <Stack.Screen name="Submission" component={SubmissionScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
+    </Provider>
   );
 }
 

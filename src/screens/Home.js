@@ -1,84 +1,65 @@
-import React from "react";
+import React, {useState} from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
-import { BottomNavigation, Text, Provider, Appbar, Card, Avatar, Divider, List } from 'react-native-paper';
+import {
+  BottomNavigation,
+  Text,
+  Provider,
+  Appbar,
+  Button,
+  Card,
+  Avatar,
+  Divider,
+  List,
+  Paragraph, Title
+} from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
-const TracingRoute = () => <>
-</>;
+const TracingCard = () => (
+  <Card style={styles.tracingCard} elevation={5}>
+    <Card.Content>
+      {/*<Title>Card title</Title>*/}
+      <Paragraph>Do you have symptoms of COVID-19 or a positive test result?</Paragraph>
+    </Card.Content>
+    <Card.Actions style={styles.center}>
+      <Button mode="contained">Take next steps</Button>
+    </Card.Actions>
+  </Card>
+);
+
+const TracingRoute = () => {
+  const [tracing, setTracing] = useState(true);
+
+  return (
+      <View style={styles.center}>
+        <View style={styles.tracingViewItem}>
+          <Avatar.Icon size={192} icon={tracing ? "bluetooth-searching" : "bluetooth-disabled"} />
+        </View>
+        <View style={styles.tracingViewItem}>
+          <Button icon={tracing ? "pause" : "play-arrow"}
+                  mode="outlined"
+                  onPress={() => setTracing(!tracing)}
+                  style={styles.tracingButton}
+          >
+            {tracing ? 'Pause' : 'Resume'}
+          </Button>
+        </View>
+        <View style={{...styles.tracingViewItem, alignItems: 'center'}}>
+          <Text variant="bodyLarge">A lot of contacts around you</Text>
+          <Text variant="bodyLarge">Remember to keep social distance</Text>
+        </View>
+        <View style={styles.tracingViewItem}>
+          <TracingCard />
+        </View>
+      </View>
+  )
+}
 
 const SymptomRoute = () => <>
 </>;
 
 const HelpRoute = () => <>
 </>;
-
-const ChatRoute = () => {
-  const data = [
-    {title: "Yihao Liu", subtitle: "Good night :)", avatar: "face-man-shimmer", time: "06:15"},
-    {title: "Chujie Ni", subtitle: "TODO: ...", avatar: "face-agent", time: "10:11"},
-    {title: "Jiawen Fan", subtitle: "Changsha", avatar: "face-woman-profile", time: "08:24"},
-    {title: "Yuru Liu", subtitle: "Sweden", avatar: "face-woman", time: "00:00"},
-    {title: "Zhiyuan Zhang", subtitle: "111", avatar: "face-man", time: "00:00"},
-    {title: "File Transfer", subtitle: "Homework1", avatar: "folder", time: "00:00"},
-  ];
-  return (
-    < >
-      <ScrollView>
-        {data.map(row => <>
-          <Card.Title
-            title={row.title}
-            subtitle={row.subtitle}
-            left={(props) => <Avatar.Icon {...props} icon={row.avatar}/>}
-            right={(props) => <Text>{row.time}</Text>}
-            rightStyle={styles.chatRightMargin}
-          />
-          <Divider />
-        </>)}
-      </ScrollView>
-    </>)}
-
-const ContactsRoute = () => {
-  const data = [
-    {title: "Yihao Liu", subtitle: "Good night :)", avatar: "face-man-shimmer", time: "06:15"},
-    {title: "Chujie Ni", subtitle: "TODO: ...", avatar: "face-agent", time: "10:11"},
-    {title: "Jiawen Fan", subtitle: "Changsha", avatar: "face-woman-profile", time: "08:24"},
-    {title: "Yuru Liu", subtitle: "Sweden", avatar: "face-woman", time: "00:00"},
-    {title: "Zhiyuan Zhang", subtitle: "111", avatar: "face-man", time: "00:00"},
-    {title: "File Transfer", subtitle: "Homework1", avatar: "folder", time: "00:00"},
-  ];
-
-  data.sort((a, b) => a.title < b.title ? -1 : 1);
-
-  const data2 = {};
-  for (let i in data) {
-    let firstLetter = data[i].title[0];
-    if (!data2.hasOwnProperty(firstLetter)) {
-      data2[firstLetter] = [data[i]];
-    } else {
-      data2[firstLetter].push(data[i]);
-    }
-  }
-  const keys = Object.keys(data2);
-  keys.sort();
-  return (
-    < >
-      <ScrollView>
-        {keys.map(key => <List.Section>
-          <List.Subheader>{key}</List.Subheader>
-          {data2[key].map(row => <>
-            <List.Item title={row.title} left={() => <List.Icon icon={row.avatar} />} />
-            <Divider />
-          </>)}
-        </List.Section>)}
-      </ScrollView>
-    </ >);
-}
-
-const DiscoverRoute = () => <>
-</>;
-
-const MeRoute = () => <></>;
 
 const Navigation = () => {
   const [index, setIndex] = React.useState(0);
@@ -110,14 +91,7 @@ const Navigation = () => {
 
 function HomeScreen() {
   return (
-    // <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    //   <Text>Home Screen</Text>
-    // </View>
-    <Provider settings={{
-      icon: props => <MaterialIcons {...props} />,
-    }}>
-      <Navigation/>
-    </Provider>
+    <Navigation/>
   );
 }
 
