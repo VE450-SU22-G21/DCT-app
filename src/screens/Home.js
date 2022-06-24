@@ -96,6 +96,23 @@ function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // textAlign: 'center'
+  },
+  tracingViewItem: {
+    marginTop: 30
+  },
+  tracingCard: {
+    marginLeft: 50,
+    marginRight: 50,
+    height: 130,
+  },
+  tracingButton: {
+    borderRadius: 10
+  },
   chatRightMargin: {
     marginRight: 15
   }
