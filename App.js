@@ -18,6 +18,7 @@ import {
 import HomeScreen from './src/screens/Home';
 import WelcomeScreen from './src/screens/Wecome';
 import SubmissionScreen from './src/screens/Submission';
+import SuccessScreen from './src/screens/Success';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const Stack = createNativeStackNavigator();
@@ -36,6 +37,7 @@ export default function App() {
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Submission" component={SubmissionScreen}/>
+        <Stack.Screen name="Success" component={SuccessScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
     </Provider>

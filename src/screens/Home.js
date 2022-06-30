@@ -10,9 +10,12 @@ import {
   Avatar,
   Divider,
   List,
+  Portal,
+  Dialog,
   Paragraph, Title
 } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from "@react-navigation/native";
 
 
 const TracingCard = () => (
@@ -55,8 +58,38 @@ const TracingRoute = () => {
   )
 }
 
-const SymptomRoute = () => <>
-</>;
+const SymptomRoute = () => {
+  const navigation = useNavigation();
+  const [report, setReport] = React.useState(false);
+
+  const showReportConfirm = () => setReport(true);
+
+  const hideReportConfirm = () => setReport(false);
+
+  return (
+    <View style={styles.center}>
+      <View style={{...styles.tracingViewItem, alignItems: 'center', justifyContent: 'center'}}>
+        <Text variant="bodyLarge">If you think yourself has symptoms similar to covid, please use a test kit or schedule a PCR test.</Text>
+        <Text variant="bodyLarge">If you have positive report, please report to the system. Thank you. Your privacy will be protected.</Text>
+      </View>
+      <View style={styles.tracingViewItem}>
+        <Button mode="contained" onPress={showReportConfirm}>Report positive result</Button>
+        <Portal>
+          <Dialog visible={report} onDismiss={hideReportConfirm}>
+            <Dialog.Title>Confirm</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>Are you sure you have a positive COVID-19 result?</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideReportConfirm}>Cancel</Button>
+              <Button mode='contained' onPress={()=>{hideReportConfirm();navigation.navigate('Success')}}>Yes</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+      </View>
+    </View>
+  )
+};
 
 const HelpRoute = () => <>
 </>;
