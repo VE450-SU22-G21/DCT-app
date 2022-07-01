@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import {
   BottomNavigation,
@@ -14,11 +14,14 @@ import {
   Dialog,
   Paragraph, Title,
 } from 'react-native-paper';
+import moment from 'moment';
+import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import storage from '../utils/storage';
 
-function TracingCard() {
+function TracingCard({ exposure }) {
+  const navigation = useNavigation();
   return (
     <Card style={styles.tracingCard} elevation={5}>
       <Card.Content>
@@ -28,42 +31,94 @@ function TracingCard() {
           result?
         </Paragraph>
       </Card.Content>
-      <Card.Actions style={styles.center}>
-        <Button mode="contained">Take next steps</Button>
+      <Card.Actions style={styles.flexCenter}>
+        {exposure
+          ? <Button mode="contained" onPress={() => { navigation.navigate('Home'); }}>I have symptoms</Button>
+          : <Button mode="contained" onPress={() => { navigation.navigate('Home'); }}>Take next steps</Button>}
       </Card.Actions>
     </Card>
   );
 }
 
 function TracingRoute() {
-  const [tracing, setTracing] = useState(true);
+  const [tracing, setTracing] = useState(
+    { tracingState: true, lastPauseTimestamp: 0, exposure: false },
+  );
+
+  const init = async () => {
+    try {
+      const savedTracing = await storage.load({ key: 'tracing' });
+      console.log('storage.load', savedTracing);
+      const tracingState = _.get(savedTracing, 'tracingState', true);
+      let lastPauseTimestamp = _.get(savedTracing, 'lastPauseTimestamp', 0);
+      const exposure = _.get(savedTracing, 'exposure', false);
+      if (tracingState) {
+        lastPauseTimestamp = 0;
+      }
+      setTracing({ tracingState, lastPauseTimestamp, exposure });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  const onTracingClick = async () => {
+    let { tracingState, lastPauseTimestamp } = tracing;
+    tracingState = !tracingState;
+    if (!tracingState) {
+      // set starting pause time
+      lastPauseTimestamp = moment.now();
+    }
+    const newTracing = { ...tracing, tracingState, lastPauseTimestamp };
+    try {
+      await storage.save({ key: 'tracing', data: newTracing });
+      console.log('storage.save', newTracing);
+    } catch (e) {
+      console.error(e);
+    }
+    setTracing(newTracing);
+  };
 
   return (
-    <View style={styles.center}>
+    <View style={styles.flexCenter}>
       <View style={styles.tracingViewItem}>
         <Avatar.Icon
           size={192}
-          icon={tracing
+          icon={tracing.tracingState
             ? 'bluetooth-searching'
             : 'bluetooth-disabled'}
         />
       </View>
       <View style={styles.tracingViewItem}>
         <Button
-          icon={tracing ? 'pause' : 'play-arrow'}
+          icon={tracing.tracingState ? 'pause' : 'play-arrow'}
           mode="outlined"
-          onPress={() => setTracing(!tracing)}
+          onPress={onTracingClick}
           style={styles.tracingButton}
         >
-          {tracing ? 'Pause' : 'Resume'}
+          {tracing.tracingState ? 'Pause' : 'Resume'}
         </Button>
       </View>
-      <View style={{ ...styles.tracingViewItem, alignItems: 'center' }}>
-        <Text variant="bodyLarge">A lot of contacts around you</Text>
-        <Text variant="bodyLarge">Remember to keep social distance</Text>
+      <View style={styles.tracingViewItem}>
+        {!tracing.tracingState && tracing.lastPauseTimestamp ? (
+          <>
+            <Text variant="bodyLarge" style={styles.center} />
+            <Text variant="bodyLarge" style={styles.center}>
+              {`Paused on ${moment(tracing.lastPauseTimestamp).format('MMMM Do YYYY, h:mm:ss a')}`}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text variant="bodyLarge" style={styles.center}>A lot of contacts around you</Text>
+            <Text variant="bodyLarge" style={styles.center}>Remember to keep social distance</Text>
+          </>
+        )}
       </View>
       <View style={styles.tracingViewItem}>
-        <TracingCard />
+        <TracingCard exposure={tracing.exposure} />
       </View>
     </View>
   );
@@ -78,7 +133,7 @@ function SymptomRoute() {
   const hideReportConfirm = () => setReport(false);
 
   return (
-    <View style={styles.center}>
+    <View style={styles.flexCenter}>
       <View style={{
         ...styles.tracingViewItem,
         alignItems: 'center',
@@ -171,11 +226,13 @@ function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: {
+  flexCenter: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    // textAlign: 'center'
+  },
+  center: {
+    textAlign: 'center',
   },
   tracingViewItem: {
     marginTop: 30,
