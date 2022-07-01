@@ -1,11 +1,12 @@
-import {StyleSheet, View} from "react-native";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   Text,
   Avatar,
   Button,
 } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
 
 function SuccessScreen({ navigation }) {
   return (
@@ -18,7 +19,7 @@ function SuccessScreen({ navigation }) {
         <View style={styles.tracingViewItem}>
           <Avatar.Icon size={192} icon="done" />
         </View>
-        <Button mode="contained" onPress={()=>{navigation.navigate('Home')}}>Back to Home</Button>
+        <Button mode="contained" onPress={() => { navigation.navigate('Home'); }}>Back to Home</Button>
       </View>
     </View>
   );
@@ -41,14 +42,15 @@ const styles = StyleSheet.create({
     height: 130,
   },
   tracingButton: {
-    borderRadius: 10
+    borderRadius: 10,
   },
   chatRightMargin: {
-    marginRight: 15
+    marginRight: 15,
   },
   text: {
-    color: '#000'
-  }
+    color: '#000',
+  },
 });
 
 export default SuccessScreen;
+

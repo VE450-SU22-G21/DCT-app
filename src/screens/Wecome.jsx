@@ -1,7 +1,7 @@
-import {View} from "react-native";
-import {Text} from "react-native-paper";
+import React from 'react';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-
 
 function WelcomeScreen({ navigation }) {
   return (
@@ -19,8 +19,10 @@ function WelcomeScreen({ navigation }) {
         </ProgressStep>
         <ProgressStep label="Permissions" onSubmit={() => navigation.replace('Home')}>
           <View style={{ alignItems: 'center' }}>
-            <Text>To opt in, we need your bluetooth permission.
-              For XXX to function correctly, please select “Allow all the time.”</Text>
+            <Text>
+              To opt in, we need your bluetooth permission.
+              For XXX to function correctly, please select “Allow all the time.”
+            </Text>
           </View>
         </ProgressStep>
       </ProgressSteps>
