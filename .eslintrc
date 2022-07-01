@@ -19,6 +19,7 @@
     "react-native/react-native": true
   },
   "rules": {
+    "linebreak-style": "off",
     "no-use-before-define": "off",
     "no-unused-vars": "off",
     "react/prop-types": "off",

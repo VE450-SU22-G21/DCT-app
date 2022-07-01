@@ -137,15 +137,14 @@ function SymptomRoute() {
       <View style={{
         ...styles.tracingViewItem,
         alignItems: 'center',
-        justifyContent: 'center',
       }}
       >
-        <Text variant="bodyLarge">
+        <Text variant="bodyLarge" style={{ marginHorizontal: 30, marginBottom: 30 }}>
           If you think yourself has symptoms similar
           to covid, please use a test kit or
           schedule a PCR test.
         </Text>
-        <Text variant="bodyLarge">
+        <Text variant="bodyLarge" style={{ marginHorizontal: 30, marginBottom: 30 }}>
           If you have positive report, please report
           to the system. Thank you. Your
           privacy will be protected.
