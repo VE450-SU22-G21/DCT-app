@@ -68,9 +68,9 @@ const SymptomRoute = () => {
 
   return (
     <View style={styles.center}>
-      <View style={{...styles.tracingViewItem, alignItems: 'center', justifyContent: 'center'}}>
-        <Text variant="bodyLarge">If you think yourself has symptoms similar to covid, please use a test kit or schedule a PCR test.</Text>
-        <Text variant="bodyLarge">If you have positive report, please report to the system. Thank you. Your privacy will be protected.</Text>
+      <View style={{...styles.tracingViewItem, alignItems: 'center'}}>
+        <Text style={{marginHorizontal: 30, marginBottom: 30}} variant="bodyLarge">If you think yourself has symptoms similar to covid, please use a test kit or schedule a PCR test.</Text>
+        <Text style={{marginHorizontal: 30, marginBottom: 30}} variant="bodyLarge">If you have positive report, please report to the system. Thank you. Your privacy will be protected.</Text>
       </View>
       <View style={styles.tracingViewItem}>
         <Button mode="contained" onPress={showReportConfirm}>Report positive result</Button>

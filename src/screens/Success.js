@@ -10,9 +10,11 @@ import { useNavigation } from "@react-navigation/native";
 function SuccessScreen({ navigation }) {
   return (
     <View style={styles.center}>
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 30}}>
-        <Text style={styles.text}>Your result has been reported. Thank you!</Text>
-        <Text style={styles.text}>Get well soon!</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{ alignItems: 'center'}}>
+          <Text style={styles.text}>Your result has been reported. Thank you!</Text>
+          <Text style={styles.text}>Get well soon!</Text>
+        </View>
         <View style={styles.tracingViewItem}>
           <Avatar.Icon size={192} icon="done" />
         </View>
@@ -30,7 +32,8 @@ const styles = StyleSheet.create({
     // textAlign: 'center'
   },
   tracingViewItem: {
-    marginTop: 30
+    marginTop: 30,
+    marginBottom: 50
   },
   tracingCard: {
     marginLeft: 50,
