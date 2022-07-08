@@ -132,6 +132,25 @@ function SymptomRoute() {
 
   const hideReportConfirm = () => setReport(false);
 
+  const reportKeys = () => {
+    const keys = storage.load({ key:"keys" });
+    fetch("report", {
+      method: 'POST',
+      body: JSON.stringify({
+        keys
+      })
+    })
+    .then((response) => {
+      return response.json();
+    })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
   return (
     <View style={styles.flexCenter}>
       <View style={{
@@ -170,6 +189,7 @@ function SymptomRoute() {
                 mode="contained"
                 onPress={() => {
                   hideReportConfirm();
+                  reportKeys();
                   navigation.navigate('Success');
                 }}
               >
