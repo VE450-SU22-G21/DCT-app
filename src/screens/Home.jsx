@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import {
+  StyleSheet, ScrollView, View,
+} from 'react-native';
 import {
   BottomNavigation,
   Text,
@@ -18,6 +20,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { v4 as uuidv4 } from 'uuid';
 import storage from '../utils/storage';
 
 function TracingCard({ exposure }) {
@@ -44,6 +47,33 @@ function TracingRoute() {
   const [tracing, setTracing] = useState(
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
+  const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
+
+  const generateKey = async () => {
+    const key = uuidv4();
+    const timestamp = moment.now();
+    console.log('generate key:', key, timestamp);
+    try {
+      await storage.save({ key: 'keys', id: key, data: timestamp });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const generateKeyStartRepeat = async () => {
+    await generateKey();
+    const interval = setInterval(async () => {
+      await generateKey();
+    }, 10000);
+    setGenerateKeyInterval(interval);
+  };
+
+  const generateKeyStopRepeat = () => {
+    if (generateKeyInterval) {
+      clearInterval(generateKeyInterval);
+      setGenerateKeyInterval(null);
+    }
+  };
 
   const init = async () => {
     try {
@@ -54,6 +84,7 @@ function TracingRoute() {
       const exposure = _.get(savedTracing, 'exposure', false);
       if (tracingState) {
         lastPauseTimestamp = 0;
+        await generateKeyStartRepeat();
       }
       setTracing({ tracingState, lastPauseTimestamp, exposure });
     } catch (e) {
@@ -63,14 +94,36 @@ function TracingRoute() {
 
   useEffect(() => {
     init();
+    return () => {
+      generateKeyStopRepeat();
+    };
   }, []);
+
+  // const keyGeneration = async () => {
+  //   const { tracingState } = tracing;
+  //   if (tracingState) {
+  //     const interval = setInterval(async () => {
+  //       await generateKey();
+  //     }, 10000);
+  //     setKeyGenerationInterval(interval);
+  //   } else if (keyGenerationInterval) {
+  //     clearInterval(keyGenerationInterval);
+  //   }
+  // };
+  //
+  // useEffect(() => {
+  //   keyGeneration();
+  // }, [tracing, keyGeneration]);
 
   const onTracingClick = async () => {
     let { tracingState, lastPauseTimestamp } = tracing;
     tracingState = !tracingState;
+    generateKeyStopRepeat();
     if (!tracingState) {
       // set starting pause time
       lastPauseTimestamp = moment.now();
+    } else {
+      await generateKeyStartRepeat();
     }
     const newTracing = { ...tracing, tracingState, lastPauseTimestamp };
     try {
@@ -133,30 +186,29 @@ function SymptomRoute() {
   const hideReportConfirm = () => setReport(false);
 
   const reportKeys = () => {
-    const keys = storage.load({ key:"tracing" }); // should be keys
-    fetch("report", {
+    const keys = storage.load({ key: 'tracing' }); // should be keys
+    fetch('report', {
       method: 'POST',
       body: JSON.stringify({
-        keys
+        keys,
+      }),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
       })
-    })
-    .then((response) => {
-      return response.json();
-    })
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <View style={styles.flexCenter}>
       <View style={{
         ...styles.tracingViewItem,
         alignItems: 'center',
-      }}>
+      }}
+      >
         <Text variant="bodyLarge" style={{ marginHorizontal: 30, marginBottom: 30 }}>
           If you think yourself has symptoms similar
           to covid, please use a test kit or
