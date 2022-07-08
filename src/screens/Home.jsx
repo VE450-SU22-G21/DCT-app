@@ -133,7 +133,7 @@ function SymptomRoute() {
   const hideReportConfirm = () => setReport(false);
 
   const reportKeys = () => {
-    const keys = storage.load({ key:"keys" });
+    const keys = storage.load({ key:"tracing" }); // should be keys
     fetch("report", {
       method: 'POST',
       body: JSON.stringify({
@@ -189,7 +189,7 @@ function SymptomRoute() {
                 mode="contained"
                 onPress={() => {
                   hideReportConfirm();
-                  reportKeys();
+                  // reportKeys();
                   navigation.navigate('Success');
                 }}
               >
