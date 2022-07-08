@@ -1,20 +1,24 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text, Avatar } from 'react-native-paper';
-import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
+// import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
+import { ProgressSteps, ProgressStep } from '../components/ProgressSteps';
 
 function WelcomeScreen({ navigation }) {
   const defaultScrollViewProps = {
     contentContainerStyle: {
       flex: 1,
-      justifyContent: 'center'
-    }
+      justifyContent: 'center',
+    },
   };
 
-  const textStyle = { flex:1, alignItems: 'center', justifyContent: 'space-evenly' };
+  const textStyle = { flex: 1, alignItems: 'center', justifyContent: 'space-evenly' };
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', margin: 20 }}>
+    <View style={{
+      flex: 1, alignItems: 'center', justifyContent: 'center', margin: 20,
+    }}
+    >
       <ProgressSteps>
         <ProgressStep label="Welcome" scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
@@ -49,7 +53,7 @@ function WelcomeScreen({ navigation }) {
             <View>
               <Avatar.Icon
                 size={192}
-                icon={'bluetooth'}
+                icon="bluetooth"
               />
             </View>
           </View>

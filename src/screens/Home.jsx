@@ -313,10 +313,7 @@ const styles = StyleSheet.create({
     height: 130,
   },
   tracingButton: {
-    borderRadius: 10,
-  },
-  chatRightMargin: {
-    marginRight: 15,
+    borderRadius: 100,
   },
 });
 
