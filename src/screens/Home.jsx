@@ -132,13 +132,31 @@ function SymptomRoute() {
 
   const hideReportConfirm = () => setReport(false);
 
+  const reportKeys = () => {
+    const keys = storage.load({ key:"tracing" }); // should be keys
+    fetch("report", {
+      method: 'POST',
+      body: JSON.stringify({
+        keys
+      })
+    })
+    .then((response) => {
+      return response.json();
+    })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
   return (
     <View style={styles.flexCenter}>
       <View style={{
         ...styles.tracingViewItem,
         alignItems: 'center',
-      }}
-      >
+      }}>
         <Text variant="bodyLarge" style={{ marginHorizontal: 30, marginBottom: 30 }}>
           If you think yourself has symptoms similar
           to covid, please use a test kit or
@@ -170,6 +188,7 @@ function SymptomRoute() {
                 mode="contained"
                 onPress={() => {
                   hideReportConfirm();
+                  reportKeys();
                   navigation.navigate('Success');
                 }}
               >

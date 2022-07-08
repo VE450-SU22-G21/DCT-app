@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, IconButton, Button, TextInput } from 'react-native-paper';
 
-function SubmissionScreen() {
+function SubmissionScreen({ navigation }) {
+  const [resultID, setResultID] = useState('');
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Submission Screen</Text>
+      <Text>Take a picture of your proof of result or enter Result ID.</Text>
+      <IconButton mode="contained" containerColor='#e6e6fa' color='#8A2BE2' size={200} icon='photo-camera' />
+      {/* <TextInput
+        type='outlined'
+        label="Result ID"
+        value={resultID}
+        onChangeText={resultID => setResultID(resultID)}
+      /> */}
+      <Button
+        mode="contained"
+        onPress={() => {
+          navigation.replace('Welcome')
+        }}
+      >Submit</Button>
     </View>
   );
 }
