@@ -156,8 +156,7 @@ function SymptomRoute() {
       <View style={{
         ...styles.tracingViewItem,
         alignItems: 'center',
-      }}
-      >
+      }}>
         <Text variant="bodyLarge" style={{ marginHorizontal: 30, marginBottom: 30 }}>
           If you think yourself has symptoms similar
           to covid, please use a test kit or
@@ -189,7 +188,7 @@ function SymptomRoute() {
                 mode="contained"
                 onPress={() => {
                   hideReportConfirm();
-                  // reportKeys();
+                  reportKeys();
                   navigation.navigate('Success');
                 }}
               >
