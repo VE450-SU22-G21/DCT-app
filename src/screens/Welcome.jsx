@@ -23,32 +23,32 @@ function WelcomeScreen({ navigation }) {
         <ProgressStep label="Welcome" scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
             <Text>Welcome to JI Exposure!</Text>
-            <Text>This version of XXX is to demonstrate the use of Bluetooth Low Energy Digital Contact Tracing Application.</Text>
+            <Text>This version of JI Exposure is to demonstrate the use of Bluetooth Low Energy Digital Contact Tracing Application.</Text>
             <Text>Our code can be found at github - https://github.com/VE450-SU22-G21/DCT-app/</Text>
           </View>
         </ProgressStep>
         <ProgressStep label="Introduction" scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
             <Text>JI Exposure</Text>
-            <Text>XXX defend the health for both you and the people around you by notifying your risks of being infected with COVID-19.</Text>
-            <Text>We fully esteem your personal privacy and safety. XXX tracks exposures without occupying any personal or location data using BLE technology.</Text>
+            <Text>JI Exposure defend the health for both you and the people around you by notifying your risks of being infected with COVID-19.</Text>
+            <Text>We fully esteem your personal privacy and safety. JI Exposure tracks exposures without occupying any personal or location data using BLE technology.</Text>
           </View>
         </ProgressStep>
         <ProgressStep label="Explanation" scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
             <Text>How we preserve both privacy and safety</Text>
-            <Text>XXX uses BLE to let your phone recognize all the other XXX users around you.</Text>
-            <Text>XXX saves key information of the phones nearby in an anonymous, local, and privacy-preserving way.</Text>
+            <Text>JI Exposure uses BLE to let your phone recognize all the other JI Exposure users around you.</Text>
+            <Text>JI Exposure saves key information of the phones nearby in an anonymous, local, and privacy-preserving way.</Text>
             <Text>If someone that are stored in your phone becomes infected, you are at risk of being infected. You would receive a notification.</Text>
             <Text>If you become infected, you can also report in the app and let others know.</Text>
             <Text>None of actions used by the app keeps records of your personal information. You are safe. And your privacy is well-preserved.</Text>
           </View>
         </ProgressStep>
-        <ProgressStep label="Permissions" onSubmit={() => navigation.replace('Home')} scrollViewProps={defaultScrollViewProps}>
+        <ProgressStep label="Allow" onSubmit={() => navigation.replace('Home')} scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
             <Text>
               To opt in, we need your bluetooth permission.
-              For XXX to function correctly, please select “Allow all the time.”
+              For JI Exposure to function correctly, please select “Allow” to ensure bluetooth permission all the time.
             </Text>
             <View>
               <Avatar.Icon

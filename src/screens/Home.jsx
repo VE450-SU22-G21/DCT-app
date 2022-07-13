@@ -48,6 +48,8 @@ function TracingRoute() {
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
+  const [keyScanning, setKeyScanning] = useState(false);
+  const [exposureNote, setExposureNote] = useState(false);
 
   const generateKey = async () => {
     const key = uuidv4();
@@ -94,6 +96,9 @@ function TracingRoute() {
 
   useEffect(() => {
     init();
+    // TODO: Fix this later
+    setTimeout(async () => {setKeyScanning(true);}, 5000);
+    setTimeout(async () => {setExposureNote(true);}, 30000);
     return () => {
       generateKeyStopRepeat();
     };
@@ -133,6 +138,9 @@ function TracingRoute() {
       console.error(e);
     }
     setTracing(newTracing);
+    // TODO: Fix this later
+    setTimeout(async () => {setKeyScanning(true);}, 10000);
+    setTimeout(async () => {setExposureNote(true);}, 30000);
   };
 
   return (
@@ -173,6 +181,34 @@ function TracingRoute() {
       <View style={styles.tracingViewItem}>
         <TracingCard exposure={tracing.exposure} />
       </View>
+      {/*TODO: Clear the dirty demo later*/}
+      <Portal>
+        <Dialog visible={keyScanning} onDismiss={() => setKeyScanning(false)}>
+          <Dialog.Title>Note</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>
+              You have close contact(s) around you.
+            </Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button mode="contained" onPress={() => setKeyScanning(false)}>Confirm</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <Portal>
+        <Dialog visible={exposureNote} onDismiss={() => setExposureNote(false)} style={styles.exposureDialog}>
+          <Dialog.Title>Warning!!!</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>
+              Someone you met before is tested to be positive for COVID-19! Take care!
+            </Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button mode="contained" onPress={() => setExposureNote(false)} style={styles.exposureButton}>Confirm</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      {/*TODO: Clear the dirty demo later*/}
     </View>
   );
 }
@@ -240,7 +276,7 @@ function SymptomRoute() {
                 mode="contained"
                 onPress={() => {
                   hideReportConfirm();
-                  reportKeys();
+                  // reportKeys();
                   navigation.navigate('Success');
                 }}
               >
@@ -314,6 +350,12 @@ const styles = StyleSheet.create({
   },
   tracingButton: {
     borderRadius: 100,
+  },
+  exposureDialog: {
+    backgroundColor: "#FFC7C7",
+  },
+  exposureButton: {
+    backgroundColor: "red",
   },
 });
 
