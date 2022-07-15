@@ -55,6 +55,8 @@ function TracingRoute() {
     console.log('generate key:', key, timestamp);
     try {
       await storage.save({ key: 'keys', id: key, data: timestamp });
+      console.log('storage.save', key, timestamp);
+      // Maybe can set expiration time here
     } catch (e) {
       console.error(e);
     }
@@ -185,22 +187,38 @@ function SymptomRoute() {
 
   const hideReportConfirm = () => setReport(false);
 
-  const reportKeys = () => {
-    const keys = storage.load({ key: 'tracing' }); // should be keys
-    fetch('report', {
-      method: 'POST',
-      body: JSON.stringify({
-        keys,
-      }),
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        console.log(response);
+  const reportKeys = async () => {
+    // not tested
+    try {
+      const keys = await storage.getAllDataForKey('keys');
+      console.log('GetAllDataForKey', keys);
+      storage.clearMapForKey('keys');
+      // Clear all uploaded keys so same key won't be uploaded twice
+      console.log('Clear all keys');
+      fetch('http://nichujie.xyz:8000/report/', {
+        method: 'POST',
+        body: JSON.stringify({
+          keys,
+        }),
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((response) => response.json())
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+    catch (err) {
+      console.warn(err.message);
+    }
   };
+
+  const onReportClick = async () => {
+    hideReportConfirm();
+    await reportKeys();
+    navigation.navigate('Success');
+  }
 
   return (
     <View style={styles.flexCenter}>
@@ -238,11 +256,7 @@ function SymptomRoute() {
               <Button onPress={hideReportConfirm}>Cancel</Button>
               <Button
                 mode="contained"
-                onPress={() => {
-                  hideReportConfirm();
-                  reportKeys();
-                  navigation.navigate('Success');
-                }}
+                onPress={onReportClick}
               >
                 Yes
               </Button>
