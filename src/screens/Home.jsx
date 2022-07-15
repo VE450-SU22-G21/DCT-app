@@ -188,16 +188,23 @@ function SymptomRoute() {
   const hideReportConfirm = () => setReport(false);
 
   const reportKeys = async () => {
-    // not tested
     try {
-      const keys = await storage.getAllDataForKey('keys');
-      console.log('GetAllDataForKey', keys);
+      const keys = await storage.getIdsForKey('keys');
+      console.log('GetIdsForKey', keys);
+      // const timestamps = await storage.getAllDataForKey('keys');
+      // console.log('GetAllDataForKey', timestamps);
+      // const data = keys.map((key, i) => {
+      //   return {key: key,
+      //   created_at: timestamps[i]}
+      // });
+      // console.log(data);
       storage.clearMapForKey('keys');
       // Clear all uploaded keys so same key won't be uploaded twice
       console.log('Clear all keys');
       fetch('http://nichujie.xyz:8000/report/', {
         method: 'POST',
         body: JSON.stringify({
+          // data,
           keys,
         }),
       })
