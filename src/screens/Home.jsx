@@ -50,7 +50,6 @@ function TracingRoute() {
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
-  const [contacted, setContacted] = useState(['7e1e2846-eb0e-4525-9bee-e06f80e65ae0']);
   const pollingInterval = 10000;
 
   useInterval( async () => {
@@ -60,10 +59,15 @@ function TracingRoute() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data['keys ']);
-      if (contacted.filter(value => data['keys '].includes(value)) !== []) {
-        console.log('WARNING!!!');
-      }
+      storage.getIdsForKey('contacted')
+      .then( contacted => {
+        console.log(data['keys ']);
+        if (contacted.filter(value => data['keys '].includes(value)) !== []) {
+          console.log('Exposure detected!');
+        } else {
+          console.log('No exposure detected!')
+        }
+      })
     })
     .catch( error => {
       console.log(error);
