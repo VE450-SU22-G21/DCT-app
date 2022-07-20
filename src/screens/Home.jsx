@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet, ScrollView, View,
+  StyleSheet, ScrollView, View, NativeEventEmitter, NativeModules,
 } from 'react-native';
 import {
   BottomNavigation,
@@ -20,7 +20,8 @@ import moment from 'moment';
 import _, { keys } from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import { v4 as uuidv4 } from 'uuid';
+import BLEAdvertiser from 'react-native-ble-advertiser';
+import { v4 as uuidv4, validate } from 'uuid';
 import storage from '../utils/storage';
 import useInterval from '../utils/useInterval';
 
@@ -75,7 +76,7 @@ function TracingRoute() {
     console.log('generate key:', key, timestamp);
     try {
       await storage.save({ key: 'keys', id: key, data: timestamp });
-      console.log('storage.save', key, timestamp);
+      // console.log('storage.save', key, timestamp);
       // Maybe can set expiration time here
     } catch (e) {
       console.error(e);
@@ -116,6 +117,19 @@ function TracingRoute() {
 
   useEffect(() => {
     init();
+
+    BLEAdvertiser.setCompanyId(21);
+    const eventEmitter = new NativeEventEmitter(NativeModules.BLEAdvertiser);
+    eventEmitter.addListener('onDeviceFound', (deviceData) => {
+      const uuids = deviceData.serviceUuids;
+      if (Array.isArray(uuids) && uuids.length > 0) {
+        const scannedKey = uuids[0];
+        if (validate(scannedKey)) { // If is valid UUID
+          storage.save({ key: 'contacted', id: scannedKey, data: moment.now() }); // Save scanned key with timestamp
+        }
+      }
+    });
+
     return () => {
       generateKeyStopRepeat();
     };
@@ -144,15 +158,42 @@ function TracingRoute() {
     if (!tracingState) {
       // set starting pause time
       lastPauseTimestamp = moment.now();
+
+      // Stop advertise
+      BLEAdvertiser.stopBroadcast()
+        .then(() => console.log('Stop Broadcast Successful'))
+        .catch((error) => console.log('Stop Broadcast Error', error));
+      // Stop scan
+      BLEAdvertiser.stopScan()
+        .then(() => console.log('Stop Scan Successful'))
+        .catch((error) => console.log('Stop Scan Error', error));
+
+      const contacted = await storage.getIdsForKey('contacted');
+      console.log('Contacted', contacted);
     } else {
       await generateKeyStartRepeat();
+
+      // Start advertise
+      const keys = await storage.getIdsForKey('keys');
+      if (Array.isArray(keys) && keys.length > 0) {
+        const currentKey = keys[keys.length - 1];
+        BLEAdvertiser.broadcast(currentKey, [], {})
+          .then(() => console.log('Broadcasting Sucessful'))
+          .catch((error) => console.log('Broadcasting Error', error));
+      }
+
+      // Start scan
+      BLEAdvertiser.scan([], {}) // service UUID and options
+        .then(() => console.log('Scan Successful'))
+        .catch((error) => console.log('Scan Error', error));
     }
+
     const newTracing = { ...tracing, tracingState, lastPauseTimestamp };
     try {
       await storage.save({ key: 'tracing', data: newTracing });
-      console.log('storage.save', newTracing);
+      // console.log('storage.save', newTracing);
     } catch (e) {
-      console.error(e);
+      // console.error(e);
     }
     setTracing(newTracing);
   };
