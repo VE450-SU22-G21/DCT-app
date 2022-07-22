@@ -52,27 +52,27 @@ function TracingRoute() {
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
   const pollingInterval = 10000;
 
-  useInterval( async () => {
-    console.log('Downloading reports')
-    fetch ('http://nichujie.xyz:8000/report/', {
-      method: "GET"
+  useInterval(async () => {
+    console.log('Downloading reports');
+    fetch('http://nichujie.xyz:8000/report/', {
+      method: 'GET',
     })
-    .then(response => response.json())
-    .then(data => {
-      storage.getIdsForKey('contacted')
-      .then( contacted => {
-        console.log(data['keys ']);
-        if (contacted.filter(value => data['keys '].includes(value)) !== []) {
-          console.log('Exposure detected!');
-        } else {
-          console.log('No exposure detected!')
-        }
+      .then((response) => response.json())
+      .then((data) => {
+        storage.getIdsForKey('contacted')
+          .then((contacted) => {
+            // console.log(data['keys ']);
+            if (contacted.filter((value) => data['keys '].includes(value)) !== []) {
+              console.log('Exposure detected!');
+            } else {
+              console.log('No exposure detected!');
+            }
+          });
       })
-    })
-    .catch( error => {
-      console.log(error);
-    })
-  }, pollingInterval)
+      .catch((error) => {
+        console.log(error);
+      });
+  }, pollingInterval);
 
   const generateKey = async () => {
     const key = uuidv4();
@@ -280,8 +280,7 @@ function SymptomRoute() {
         .catch((error) => {
           console.error(error);
         });
-    }
-    catch (err) {
+    } catch (err) {
       console.warn(err.message);
     }
   };
@@ -290,7 +289,7 @@ function SymptomRoute() {
     hideReportConfirm();
     await reportKeys();
     navigation.navigate('Success');
-  }
+  };
 
   return (
     <View style={styles.flexCenter}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, PermissionsAndroid, Platform } from 'react-native';
 import { Text, Avatar } from 'react-native-paper';
 // import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
 import { ProgressSteps, ProgressStep } from '../components/ProgressSteps';
@@ -13,6 +13,33 @@ function WelcomeScreen({ navigation }) {
   };
 
   const textStyle = { flex: 1, alignItems: 'center', justifyContent: 'space-evenly' };
+
+  const onSubmit = async () => {
+    // Get Bluetooth permission
+    console.log(Platform.OS);
+    if (Platform.OS === 'android') {
+      const permissions = [
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
+      ];
+      try {
+        const granted = await PermissionsAndroid.requestMultiple(permissions);
+        console.log(granted);
+        for (const permission in granted) {
+          if (granted[permission] !== PermissionsAndroid.RESULTS.GRANTED) {
+            throw permission;
+          }
+        }
+        navigation.replace('Home');
+      } catch (err) {
+        console.warn(err);
+      }
+    } else {
+      // TODO: iOS permission
+      navigation.replace('Home');
+    }
+  };
 
   return (
     <View style={{
@@ -44,7 +71,7 @@ function WelcomeScreen({ navigation }) {
             <Text>None of actions used by the app keeps records of your personal information. You are safe. And your privacy is well-preserved.</Text>
           </View>
         </ProgressStep>
-        <ProgressStep label="Permissions" onSubmit={() => navigation.replace('Home')} scrollViewProps={defaultScrollViewProps}>
+        <ProgressStep label="Permissions" onSubmit={onSubmit} scrollViewProps={defaultScrollViewProps}>
           <View style={textStyle}>
             <Text>
               To opt in, we need your bluetooth permission.
