@@ -103,9 +103,15 @@ function TracingRoute() {
   };
 
   const init = async () => {
+    let savedTracing;
     try {
-      const savedTracing = await storage.load({ key: 'tracing' });
+      savedTracing = await storage.load({ key: 'tracing' });
       console.log('storage.load', savedTracing);
+    } catch (e) {
+      savedTracing = {};
+      console.log('storage.load: not found.');
+    }
+    try {
       const tracingState = _.get(savedTracing, 'tracingState', true);
       let lastPauseTimestamp = _.get(savedTracing, 'lastPauseTimestamp', 0);
       const exposure = _.get(savedTracing, 'exposure', false);
