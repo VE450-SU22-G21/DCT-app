@@ -17,12 +17,13 @@ import {
   Paragraph, Title,
 } from 'react-native-paper';
 import moment from 'moment';
-import _ from 'lodash';
+import _, { keys } from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import BLEAdvertiser from 'react-native-ble-advertiser';
 import { v4 as uuidv4, validate } from 'uuid';
 import storage from '../utils/storage';
+import useInterval from '../utils/useInterval';
 
 function TracingCard({ exposure }) {
   const navigation = useNavigation();
@@ -49,6 +50,29 @@ function TracingRoute() {
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
+  const pollingInterval = 10000;
+
+  useInterval( async () => {
+    console.log('Downloading reports')
+    fetch ('http://nichujie.xyz:8000/report/', {
+      method: "GET"
+    })
+    .then(response => response.json())
+    .then(data => {
+      storage.getIdsForKey('contacted')
+      .then( contacted => {
+        console.log(data['keys ']);
+        if (contacted.filter(value => data['keys '].includes(value)) !== []) {
+          console.log('Exposure detected!');
+        } else {
+          console.log('No exposure detected!')
+        }
+      })
+    })
+    .catch( error => {
+      console.log(error);
+    })
+  }, pollingInterval)
 
   const generateKey = async () => {
     const key = uuidv4();
@@ -239,9 +263,9 @@ function SymptomRoute() {
       //   created_at: timestamps[i]}
       // });
       // console.log(data);
-      storage.clearMapForKey('keys');
-      // Clear all uploaded keys so same key won't be uploaded twice
-      console.log('Clear all keys');
+      // storage.clearMapForKey('keys');
+      // // Clear all uploaded keys so same key won't be uploaded twice
+      // console.log('Clear all keys');
       fetch('http://nichujie.xyz:8000/report/', {
         method: 'POST',
         body: JSON.stringify({
