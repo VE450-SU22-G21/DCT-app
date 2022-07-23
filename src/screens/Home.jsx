@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Constants from 'expo-constants';
 import {
   StyleSheet, ScrollView, View, NativeEventEmitter, NativeModules,
 } from 'react-native';
@@ -54,7 +55,8 @@ function TracingRoute() {
 
   useInterval(async () => {
     console.log('Downloading reports');
-    fetch('http://nichujie.xyz:8000/report/', {
+    const url = new URL('/report', Constants.manifest.extra.baseURL);
+    fetch(url.toString(), {
       method: 'GET',
     })
       .then((response) => response.json())
@@ -272,7 +274,8 @@ function SymptomRoute() {
       // storage.clearMapForKey('keys');
       // // Clear all uploaded keys so same key won't be uploaded twice
       // console.log('Clear all keys');
-      fetch('http://nichujie.xyz:8000/report/', {
+      const url = new URL('/report', Constants.manifest.extra.baseURL);
+      fetch(url.toString(), {
         method: 'POST',
         body: JSON.stringify({
           // data,
