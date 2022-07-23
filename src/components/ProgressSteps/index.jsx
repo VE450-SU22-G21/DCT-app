@@ -57,7 +57,7 @@ function ProgressStep({
             key={i}
             style={{
               ...styles.stepButton,
-              backgroundColor: i <= step ? colors.primary : colors.disabled,
+              backgroundColor: i <= step ? colors.primary : colors.secondary,
             }}
           />
         ))}
@@ -96,10 +96,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   stepButton: {
-    margin: 5,
     width: 10,
     height: 10,
-    borderRadius: 20,
+    borderRadius: 10,
   },
   center: {
     textAlign: 'center',
