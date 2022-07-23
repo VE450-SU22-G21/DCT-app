@@ -18,7 +18,7 @@ import {
   Paragraph, Title,
 } from 'react-native-paper';
 import moment from 'moment';
-import _, { keys } from 'lodash';
+import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import BLEAdvertiser from 'react-native-ble-advertiser';
@@ -51,29 +51,35 @@ function TracingRoute() {
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
+  const [exposureKeys, setExposureKeys] = useState({ all: ['133d5d29-067e-49ac-96f7-600d509f14ab', '117067bf-dd0e-4e97-b9dd-cc06f0f7f60e'], unchecked: ['133d5d29-067e-49ac-96f7-600d509f14ab'] });
   const pollingInterval = 10000;
 
   useInterval(async () => {
-    console.log('Downloading reports');
-    const url = new URL('/report', Constants.manifest.extra.baseURL);
-    fetch(url.toString(), {
-      method: 'GET',
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        storage.getIdsForKey('contacted')
-          .then((contacted) => {
-            // console.log(data['keys ']);
-            if (contacted.filter((value) => data['keys '].includes(value)) !== []) {
-              console.log('Exposure detected!');
-            } else {
-              console.log('No exposure detected!');
-            }
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      console.log('Downloading reports');
+      const url = new URL('/report', Constants.manifest.extra.baseURL);
+      const response = await fetch(url.toString(), { method: 'GET' });
+      const data = await response.json();
+      const fetchedKeys = data['keys '];
+      const contactedKeys = await storage.getIdsForKey('contacted');
+      const matchedKeys = _.intersection(fetchedKeys, contactedKeys);
+      const newMatchedKeys = _.difference(matchedKeys, exposureKeys.all);
+      // console.log(fetchedKeys);
+      if (newMatchedKeys.length > 0) {
+        console.log(newMatchedKeys);
+        setExposureKeys({
+          all: exposureKeys.all.concat(newMatchedKeys),
+          unchecked: exposureKeys.unchecked.concat(newMatchedKeys),
+        });
+        console.log(exposureKeys.all);
+        console.log(exposureKeys.unchecked);
+      } else {
+        console.log(exposureKeys.all);
+        console.log(exposureKeys.unchecked);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, pollingInterval);
 
   const generateKey = async () => {
@@ -248,6 +254,41 @@ function TracingRoute() {
       <View style={styles.tracingViewItem}>
         <TracingCard exposure={tracing.exposure} />
       </View>
+      <Portal>
+        <Dialog
+          visible={exposureKeys.unchecked.length > 0}
+          onDismiss={() => setExposureKeys({
+            all: exposureKeys.all,
+            unchecked: [],
+          })}
+          style={styles.exposureDialog}
+        >
+          <Dialog.Icon icon="warning" size={48} />
+          {/* <Dialog.Title> */}
+          {/*  Warning!!! */}
+          {/* </Dialog.Title> */}
+          <Dialog.Content style={{ marginTop: 20 }}>
+            <Paragraph>
+              {exposureKeys.unchecked.length}
+              {' '}
+              new exposures detected! Take care!
+            </Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              mode="contained"
+              onPress={() => setExposureKeys({
+                all: exposureKeys.all,
+                unchecked: [],
+              })}
+              buttonColor="red"
+              // style={styles.exposureButton}
+            >
+              Confirm
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
@@ -408,6 +449,12 @@ const styles = StyleSheet.create({
   },
   tracingButton: {
     borderRadius: 100,
+  },
+  exposureDialog: {
+    backgroundColor: '#FFC7C7',
+  },
+  exposureButton: {
+    backgroundColor: 'red',
   },
 });
 
