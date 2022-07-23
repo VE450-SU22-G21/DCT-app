@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Constants from 'expo-constants';
 import {
   StyleSheet, ScrollView, View, NativeEventEmitter, NativeModules,
@@ -19,14 +19,14 @@ import {
 } from 'react-native-paper';
 import moment from 'moment';
 import _ from 'lodash';
-  import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 import BLEAdvertiser from 'react-native-ble-advertiser';
-import {v4 as uuidv4, validate} from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import storage from '../utils/storage';
 import useInterval from '../utils/useInterval';
 
-function TracingCard({exposure}) {
+function TracingCard({ exposure }) {
   const navigation = useNavigation();
   return (
     <Card style={styles.tracingCard}>
@@ -39,36 +39,45 @@ function TracingCard({exposure}) {
       </Card.Content>
       <Card.Actions style={styles.flexCenter}>
         {exposure
-          ? <Button mode="contained" onPress={() => {
-            navigation.navigate('Home');
-          }}>I have symptoms</Button>
-          : <Button mode="contained" onPress={() => {
-            navigation.navigate('Home');
-          }}>Take next steps</Button>}
+          ? (
+            <Button
+              mode="contained"
+              onPress={() => {
+                navigation.navigate('Home');
+              }}
+            >
+              I have symptoms
+            </Button>
+          )
+          : (
+            <Button
+              mode="contained"
+              onPress={() => {
+                navigation.navigate('Home');
+              }}
+            >
+              Take next steps
+            </Button>
+          )}
       </Card.Actions>
     </Card>
   );
 }
 
-function TracingRoute() {
-  const {colors} = useTheme();
+function TracingRoute({ exposureKeys, setExposureKeys }) {
+  const { colors } = useTheme();
   const [tracing, setTracing] = useState(
-    {tracingState: true, lastPauseTimestamp: 0, exposure: false},
+    { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
-  const [exposureKeys, setExposureKeys] = useState({
-    all: [
-      '133d5d29-067e-49ac-96f7-600d509f14ab',
-      '117067bf-dd0e-4e97-b9dd-cc06f0f7f60e'],
-    unchecked: ['133d5d29-067e-49ac-96f7-600d509f14ab'],
-  });
+
   const pollingInterval = 10000;
 
   useInterval(async () => {
     try {
       console.log('Downloading reports');
       const url = new URL('/report', Constants.manifest.extra.baseURL);
-      const response = await fetch(url.toString(), {method: 'GET'});
+      const response = await fetch(url.toString(), { method: 'GET' });
       const data = await response.json();
       const fetchedKeys = data['keys '];
       const contactedKeys = await storage.getIdsForKey('contacted');
@@ -95,9 +104,9 @@ function TracingRoute() {
   const generateKey = async () => {
     const key = uuidv4();
     const timestamp = moment.now();
-    console.log('generate key:', key, timestamp);
+    // console.log('generate key:', key, timestamp);
     try {
-      await storage.save({key: 'keys', id: key, data: timestamp});
+      await storage.save({ key: 'keys', id: key, data: timestamp });
       // console.log('storage.save', key, timestamp);
       // Maybe can set expiration time here
     } catch (e) {
@@ -123,7 +132,7 @@ function TracingRoute() {
   const init = async () => {
     let savedTracing;
     try {
-      savedTracing = await storage.load({key: 'tracing'});
+      savedTracing = await storage.load({ key: 'tracing' });
       console.log('storage.load', savedTracing);
     } catch (e) {
       savedTracing = {};
@@ -137,7 +146,7 @@ function TracingRoute() {
         lastPauseTimestamp = 0;
         await generateKeyStartRepeat();
       }
-      setTracing({tracingState, lastPauseTimestamp, exposure});
+      setTracing({ tracingState, lastPauseTimestamp, exposure });
     } catch (e) {
       console.error(e);
     }
@@ -146,17 +155,17 @@ function TracingRoute() {
   useEffect(() => {
     init();
 
-    /*    BLEAdvertiser.setCompanyId(21);
-        const eventEmitter = new NativeEventEmitter(NativeModules.BLEAdvertiser);
-        eventEmitter.addListener('onDeviceFound', (deviceData) => {
-          const uuids = deviceData.serviceUuids;
-          if (Array.isArray(uuids) && uuids.length > 0) {
-            const scannedKey = uuids[0];
-            if (validate(scannedKey)) { // If is valid UUID
-              storage.save({ key: 'contacted', id: scannedKey, data: moment.now() }); // Save scanned key with timestamp
-            }
-          }
-        });*/
+    BLEAdvertiser.setCompanyId(21);
+    const eventEmitter = new NativeEventEmitter(NativeModules.BLEAdvertiser);
+    eventEmitter.addListener('onDeviceFound', (deviceData) => {
+      const uuids = deviceData.serviceUuids;
+      if (Array.isArray(uuids) && uuids.length > 0) {
+        const scannedKey = uuids[0];
+        if (validate(scannedKey)) { // If is valid UUID
+          storage.save({ key: 'contacted', id: scannedKey, data: moment.now() }); // Save scanned key with timestamp
+        }
+      }
+    });
 
     return () => {
       generateKeyStopRepeat();
@@ -180,7 +189,7 @@ function TracingRoute() {
   // }, [tracing, keyGeneration]);
 
   const onTracingClick = async () => {
-    let {tracingState, lastPauseTimestamp} = tracing;
+    let { tracingState, lastPauseTimestamp } = tracing;
     tracingState = !tracingState;
     generateKeyStopRepeat();
     if (!tracingState) {
@@ -188,13 +197,13 @@ function TracingRoute() {
       lastPauseTimestamp = moment.now();
 
       // Stop advertise
-      BLEAdvertiser.stopBroadcast().
-        then(() => console.log('Stop Broadcast Successful')).
-        catch((error) => console.log('Stop Broadcast Error', error));
+      BLEAdvertiser.stopBroadcast()
+        .then(() => console.log('Stop Broadcast Successful'))
+        .catch((error) => console.log('Stop Broadcast Error', error));
       // Stop scan
-      BLEAdvertiser.stopScan().
-        then(() => console.log('Stop Scan Successful')).
-        catch((error) => console.log('Stop Scan Error', error));
+      BLEAdvertiser.stopScan()
+        .then(() => console.log('Stop Scan Successful'))
+        .catch((error) => console.log('Stop Scan Error', error));
 
       const contacted = await storage.getIdsForKey('contacted');
       console.log('Contacted', contacted);
@@ -205,20 +214,20 @@ function TracingRoute() {
       const keys = await storage.getIdsForKey('keys');
       if (Array.isArray(keys) && keys.length > 0) {
         const currentKey = keys[keys.length - 1];
-        BLEAdvertiser.broadcast(currentKey, [], {}).
-          then(() => console.log('Broadcasting Sucessful')).
-          catch((error) => console.log('Broadcasting Error', error));
+        BLEAdvertiser.broadcast(currentKey, [], {})
+          .then(() => console.log('Broadcasting Sucessful'))
+          .catch((error) => console.log('Broadcasting Error', error));
       }
 
       // Start scan
       BLEAdvertiser.scan([], {}) // service UUID and options
-        .then(() => console.log('Scan Successful')).
-        catch((error) => console.log('Scan Error', error));
+        .then(() => console.log('Scan Successful'))
+        .catch((error) => console.log('Scan Error', error));
     }
 
-    const newTracing = {...tracing, tracingState, lastPauseTimestamp};
+    const newTracing = { ...tracing, tracingState, lastPauseTimestamp };
     try {
-      await storage.save({key: 'tracing', data: newTracing});
+      await storage.save({ key: 'tracing', data: newTracing });
       // console.log('storage.save', newTracing);
     } catch (e) {
       // console.error(e);
@@ -235,7 +244,7 @@ function TracingRoute() {
             ? 'bluetooth-searching'
             : 'bluetooth-disabled'}
           color={colors.primary}
-          style={{backgroundColor: colors.secondary}}
+          style={{ backgroundColor: colors.secondary }}
         />
       </View>
       <View style={styles.tracingViewItem}>
@@ -251,23 +260,27 @@ function TracingRoute() {
       <View style={styles.tracingViewItem}>
         {!tracing.tracingState && tracing.lastPauseTimestamp ? (
           <>
-            <Text variant="bodyLarge" style={styles.center}/>
+            <Text variant="bodyLarge" style={styles.center} />
             <Text variant="bodyLarge" style={styles.center}>
-              {`Paused on ${moment(tracing.lastPauseTimestamp).
-                format('MMMM Do YYYY, h:mm:ss a')}`}
+              {`Paused on ${moment(tracing.lastPauseTimestamp)
+                .format('MMMM Do YYYY, h:mm:ss a')}`}
             </Text>
           </>
         ) : (
           <>
-            <Text variant="bodyLarge" style={styles.center}>A lot of contacts
-              around you</Text>
-            <Text variant="bodyLarge" style={styles.center}>Remember to keep
-              social distance</Text>
+            <Text variant="bodyLarge" style={styles.center}>
+              A lot of contacts
+              around you
+            </Text>
+            <Text variant="bodyLarge" style={styles.center}>
+              Remember to keep
+              social distance
+            </Text>
           </>
         )}
       </View>
       <View style={styles.tracingViewItem}>
-        <TracingCard exposure={tracing.exposure}/>
+        <TracingCard exposure={tracing.exposure} />
       </View>
       <Portal>
         <Dialog
@@ -282,7 +295,7 @@ function TracingRoute() {
           {/* <Dialog.Title> */}
           {/*  Warning!!! */}
           {/* </Dialog.Title> */}
-          <Dialog.Content style={{marginTop: 20}}>
+          <Dialog.Content style={{ marginTop: 20 }}>
             <Text variant="bodyLarge">
               {exposureKeys.unchecked.length}
               {' '}
@@ -360,14 +373,18 @@ function SymptomRoute() {
         alignItems: 'center',
       }}
       >
-        <Text variant="bodyLarge"
-              style={{marginHorizontal: 30, marginBottom: 30}}>
+        <Text
+          variant="bodyLarge"
+          style={{ marginHorizontal: 30, marginBottom: 30 }}
+        >
           If you think yourself has symptoms similar
           to covid, please use a test kit or
           schedule a PCR test.
         </Text>
-        <Text variant="bodyLarge"
-              style={{marginHorizontal: 30, marginBottom: 30}}>
+        <Text
+          variant="bodyLarge"
+          style={{ marginHorizontal: 30, marginBottom: 30 }}
+        >
           If you have positive report, please report
           to the system. Thank you. Your
           privacy will be protected.
@@ -403,35 +420,86 @@ function SymptomRoute() {
   );
 }
 
-function HelpRoute() {
+function HelpRoute({ exposureKeys }) {
+  const [groupContacts, setGroupContacts] = useState([]);
+  const { colors } = useTheme();
+
+  useEffect(() => {
+    const init = async () => {
+      await storage.save({ key: 'contacted', id: '133d5d29-067e-49ac-96f7-600d509f14ab', data: moment().subtract(1, 'days') });
+      await storage.save({ key: 'contacted', id: '117067bf-dd0e-4e97-b9dd-cc06f0f7f60e', data: moment().subtract(2, 'days') });
+      const exposureTimestamps = await storage.getBatchDataWithIds({ key: 'contacted', ids: exposureKeys.all });
+      const contacts = _.zipWith(exposureKeys.all, exposureTimestamps, (a, b) => ({ key: a, timestamp: b }));
+      const _groupContacts = _.chain(contacts)
+        .sortBy(['timestamp'])
+        .groupBy(({ key, timestamp }) => moment(timestamp).startOf('day').format())
+        .map((value, key) => ({ day: key, contacts: value }))
+        .sortBy(['day'])
+        .reverse()
+        .value();
+      console.log('Group contacts:', _groupContacts);
+      setGroupContacts(_groupContacts);
+    };
+    init();
+  }, []);
+
   return (
-    <>
-    </>
+    <View>
+      <Text variant="titleLarge" style={{ ...styles.center, margin: 20 }}>All exposures</Text>
+      <ScrollView>
+        {groupContacts.map(({ day, contacts }) => (
+          <List.Section key={day}>
+            <List.Subheader style={{ backgroundColor: colors.surface }}>{moment(day).format('ddd, MMMM Do')}</List.Subheader>
+            {contacts.map(({ key, timestamp }) => <List.Item key={key} title={moment(timestamp).format('hh:mm:ss a')} left={() => <List.Icon icon="warning" />} />)}
+          </List.Section>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 function Navigation() {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    {key: 'tracing', title: 'Tracing', focusedIcon: 'my-location'},
-    {key: 'symptom', title: 'Symptom', focusedIcon: 'medical-services'},
-    {key: 'help', title: 'Help', focusedIcon: 'help'},
+    { key: 'tracing', title: 'Tracing', focusedIcon: 'my-location' },
+    { key: 'symptom', title: 'Symptom', focusedIcon: 'medical-services' },
+    { key: 'help', title: 'Exposures', focusedIcon: 'history' },
     // {key: 'chat', title: 'Chats', icon: 'chat', badge: 99},
     // {key: 'contacts', title: 'Contacts', icon: 'contacts'},
     // {key: 'discover', title: 'Discover', icon: 'compass'},
     // {key: 'me', title: 'Me', icon: 'account'},
   ]);
 
-  const renderScene = BottomNavigation.SceneMap({
-    tracing: TracingRoute,
-    symptom: SymptomRoute,
-    help: HelpRoute,
-    // me: MeRoute,
+  const [exposureKeys, setExposureKeys] = useState({
+    all: [
+      '133d5d29-067e-49ac-96f7-600d509f14ab',
+      '117067bf-dd0e-4e97-b9dd-cc06f0f7f60e'],
+    unchecked: ['133d5d29-067e-49ac-96f7-600d509f14ab'],
   });
+
+  const renderScene = ({ route, jumpTo }) => {
+    switch (route.key) {
+      case 'tracing':
+        return <TracingRoute jumpTo={jumpTo} exposureKeys={exposureKeys} setExposureKeys={setExposureKeys} />;
+      case 'symptom':
+        return <SymptomRoute jumpTo={jumpTo} />;
+      case 'help':
+        return <HelpRoute jumpTo={jumpTo} exposureKeys={exposureKeys} />;
+      default:
+        return null;
+    }
+  };
+
+  // const renderScene = BottomNavigation.SceneMap({
+  //   tracing: TracingRoute,
+  //   symptom: SymptomRoute,
+  //   help: HelpRoute,
+  //   // me: MeRoute,
+  // });
 
   return (
     <BottomNavigation
-      navigationState={{index, routes}}
+      navigationState={{ index, routes }}
       onIndexChange={setIndex}
       renderScene={renderScene}
     />
@@ -440,7 +508,7 @@ function Navigation() {
 
 function HomeScreen() {
   return (
-    <Navigation/>
+    <Navigation />
   );
 }
 
