@@ -37,7 +37,7 @@ function TracingCard({ exposure }) {
           result?
         </Paragraph>
       </Card.Content>
-      <Card.Actions style={styles.flexCenter}>
+      <View style={styles.flexCenter}>
         {exposure
           ? (
             <Button
@@ -59,7 +59,7 @@ function TracingCard({ exposure }) {
               Take next steps
             </Button>
           )}
-      </Card.Actions>
+      </View>
     </Card>
   );
 }
