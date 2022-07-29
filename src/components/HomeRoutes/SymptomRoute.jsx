@@ -50,19 +50,19 @@ export default function SymptomRoute() {
       <View
         style={{
           ...styles.tracingViewItem,
-          alignItems: 'center',
+          paddingHorizontal: 30,
         }}
       >
         <Text
           variant="bodyLarge"
-          style={{ marginHorizontal: 30, marginBottom: 30 }}
+          style={{ marginBottom: 30, textAlign: 'left' }}
         >
-          If you think yourself has symptoms similar to covid, please use a test
-          kit or schedule a PCR test.
+          If you feel symptoms similar to COVID-19, please use a test kit or
+          schedule a PCR test.
         </Text>
         <Text
           variant="bodyLarge"
-          style={{ marginHorizontal: 30, marginBottom: 30 }}
+          style={{ marginBottom: 30, textAlign: 'left' }}
         >
           If you have positive report, please report to the system. Thank you.
           Your privacy will be protected.

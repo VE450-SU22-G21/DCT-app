@@ -195,19 +195,35 @@ export default function TracingRoute({
     setTracing(newTracing);
   };
 
+  const avatarSize = 192;
+  const outerBorderWidth = 8;
+
   return (
     <View style={styles.flexCenter}>
-      <View style={styles.tracingViewItem}>
-        <Avatar.Icon
-          size={192}
-          icon={
-            tracing.tracingState ? 'bluetooth-searching' : 'bluetooth-disabled'
-          }
-          color={colors.primary}
-          style={{ backgroundColor: colors.secondary }}
-        />
-      </View>
-      <View style={styles.tracingViewItem}>
+      <View>
+        <View
+          style={{
+            borderWidth: outerBorderWidth,
+            borderColor: colors.secondary,
+            borderRadius: (avatarSize + outerBorderWidth * 2) / 2,
+          }}
+        >
+          <Avatar.Icon
+            size={avatarSize}
+            icon={
+              tracing.tracingState
+                ? 'bluetooth-searching'
+                : 'bluetooth-disabled'
+            }
+            color={colors.primary}
+            style={{
+              backgroundColor: colors.secondary,
+              borderWidth: 16,
+              borderColor: '#fff',
+              borderRadius: 100,
+            }}
+          />
+        </View>
         <Button
           icon={tracing.tracingState ? 'pause' : 'play-arrow'}
           mode="outlined"
@@ -217,7 +233,7 @@ export default function TracingRoute({
           {tracing.tracingState ? 'Pause' : 'Resume'}
         </Button>
       </View>
-      <View style={styles.tracingViewItem}>
+      <View>
         {!tracing.tracingState && tracing.lastPauseTimestamp ? (
           <>
             <Text variant="bodyLarge" style={styles.center} />
@@ -242,7 +258,7 @@ export default function TracingRoute({
           </>
         )}
       </View>
-      <View style={styles.tracingViewItem}>
+      <View>
         <TracingCard setIndex={setIndex} exposure={tracing.exposure} />
       </View>
       <Portal>
@@ -296,8 +312,10 @@ export default function TracingRoute({
 const styles = StyleSheet.create({
   flexCenter: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 48,
+    paddingBottom: 24,
   },
   center: {
     textAlign: 'center',
@@ -307,6 +325,7 @@ const styles = StyleSheet.create({
   },
   tracingButton: {
     borderRadius: 100,
+    marginTop: 36,
   },
   exposureDialog: {
     backgroundColor: '#FFC7C7',
