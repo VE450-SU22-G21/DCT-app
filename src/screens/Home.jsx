@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Constants from 'expo-constants';
 import {
   StyleSheet, ScrollView, View, NativeEventEmitter, NativeModules,
@@ -15,11 +15,11 @@ import {
   List,
   Portal,
   Dialog,
-  Paragraph, Title, useTheme, IconButton,
+  Paragraph, Title, useTheme,
+  Snackbar,
 } from 'react-native-paper';
 import moment from 'moment';
 import _ from 'lodash';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import BLEAdvertiser from 'react-native-ble-advertiser';
 import { v4 as uuidv4, validate } from 'uuid';
@@ -56,6 +56,7 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
     { tracingState: true, lastPauseTimestamp: 0, exposure: false },
   );
   const [generateKeyInterval, setGenerateKeyInterval] = useState(null);
+  const [snackVisible, setSnackVisible] = useState(false);
 
   const pollingInterval = 10000;
 
@@ -64,10 +65,11 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
       const url = new URL('/report', Constants.manifest.extra.baseURL);
       const response = await fetch(url.toString(), { method: 'GET' });
       const data = await response.json();
-      const fetchedKeys = data['keys '];
+      const fetchedKeys = data.keys;
       const contactedKeys = await storage.getIdsForKey('contacted');
       const matchedKeys = _.intersection(fetchedKeys, contactedKeys);
       const newMatchedKeys = _.difference(matchedKeys, exposureKeys.all);
+      console.log(contactedKeys)
       if (newMatchedKeys.length > 0) {
         console.log(newMatchedKeys);
         setExposureKeys({
@@ -98,22 +100,28 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
     }
   };
 
-  const generateKeyStartRepeat = async () => {
+  const generateKeyStartRepeat = useCallback(async () => {
     await generateKey();
     const interval = setInterval(async () => {
       await generateKey();
     }, 15 * 60 * 1000); // generate a new key every 15 min
     setGenerateKeyInterval(interval);
-  };
+  }, []);
 
-  const generateKeyStopRepeat = () => {
+  const generateKeyStopRepeat = useCallback(() => {
     if (generateKeyInterval) {
       clearInterval(generateKeyInterval);
       setGenerateKeyInterval(null);
     }
-  };
+  }, []);
 
-  const init = async () => {
+  const clearStorage = useCallback(() => {
+    storage.clearMapForKey('keys');
+    storage.clearMapForKey('contacted');
+    setSnackVisible(true);
+  }, []);
+
+  const init = useCallback(async () => {
     let savedTracing;
     try {
       savedTracing = await storage.load({ key: 'tracing' });
@@ -134,7 +142,7 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, []);
 
   useEffect(() => {
     init();
@@ -145,8 +153,9 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
       const uuids = deviceData.serviceUuids;
       if (Array.isArray(uuids) && uuids.length > 0) {
         const scannedKey = uuids[0];
-        if (validate(scannedKey)) { // If is valid UUID
-          storage.save({ key: 'contacted', id: scannedKey, data: moment.now() }); // Save scanned key with timestamp
+        if (scannedKey && validate(scannedKey)) { // If is valid UUID
+          console.log('Scanned', scannedKey);
+          storage.save({ key: 'contacted', id: scannedKey.toLowerCase(), data: moment.now() }); // Save scanned key with timestamp
         }
       }
     });
@@ -155,22 +164,6 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
       generateKeyStopRepeat();
     };
   }, []);
-
-  // const keyGeneration = async () => {
-  //   const { tracingState } = tracing;
-  //   if (tracingState) {
-  //     const interval = setInterval(async () => {
-  //       await generateKey();
-  //     }, 10000);
-  //     setKeyGenerationInterval(interval);
-  //   } else if (keyGenerationInterval) {
-  //     clearInterval(keyGenerationInterval);
-  //   }
-  // };
-  //
-  // useEffect(() => {
-  //   keyGeneration();
-  // }, [tracing, keyGeneration]);
 
   const onTracingClick = async () => {
     let { tracingState, lastPauseTimestamp } = tracing;
@@ -244,7 +237,7 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
         {!tracing.tracingState && tracing.lastPauseTimestamp ? (
           <>
             <Text variant="bodyLarge" style={styles.center} />
-            <Text variant="bodyLarge" style={styles.center}>
+            <Text variant="bodyLarge" style={styles.center} onLongPress={clearStorage}>
               {`Paused on ${moment(tracing.lastPauseTimestamp).
                 format('MMMM Do YYYY, h:mm:ss a')}`}
             </Text>
@@ -300,6 +293,13 @@ function TracingRoute({ setIndex, exposureKeys, setExposureKeys }) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+      <Snackbar
+        visible={snackVisible}
+        onDismiss={() => setSnackVisible(false)}
+        action={{ label: 'OK' }}
+      >
+        Local keys cleared!
+      </Snackbar>
     </View>
   );
 }
@@ -335,7 +335,6 @@ function SymptomRoute() {
         }),
       }).then((response) => response.json()).then((response) => {
         console.log('Report success');
-        console.log(response);
       }).catch((error) => {
         console.error(error);
       });
@@ -410,16 +409,6 @@ function HelpRoute({ exposureKeys }) {
 
   useEffect(() => {
     const init = async () => {
-      await storage.save({
-        key: 'contacted',
-        id: '133d5d29-067e-49ac-96f7-600d509f14ab',
-        data: moment().subtract(1, 'days'),
-      });
-      await storage.save({
-        key: 'contacted',
-        id: '117067bf-dd0e-4e97-b9dd-cc06f0f7f60e',
-        data: moment().subtract(2, 'days'),
-      });
       const exposureTimestamps = await storage.getBatchDataWithIds(
         { key: 'contacted', ids: exposureKeys.all });
       const contacts = _.zipWith(exposureKeys.all, exposureTimestamps,
@@ -529,8 +518,8 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   tracingCard: {
-    marginLeft: 50,
-    marginRight: 50,
+    marginLeft: 20,
+    marginRight: 20,
     height: 130,
   },
   tracingButton: {
