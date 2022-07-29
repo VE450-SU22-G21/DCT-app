@@ -24,6 +24,11 @@
     "no-unused-vars": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
-    "react/no-unstable-nested-components": "off"
+    "react/no-unstable-nested-components": "off",
+    "object-curly-newline": "off",
+    "comma-dangle": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-console": "off",
+    "react/jsx-one-expression-per-line": "off"
   }
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   PermissionsAndroid,
@@ -7,26 +7,24 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-} from "react-native";
-import { Text, Avatar, useTheme } from "react-native-paper";
-// import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import { ProgressSteps, ProgressStep } from "../components/ProgressSteps";
+} from 'react-native';
+import { Text, Avatar, useTheme } from 'react-native-paper';
+import { ProgressSteps, ProgressStep } from '../components/ProgressSteps';
 
 function WelcomeScreen({ navigation }) {
   const defaultScrollViewProps = {
     contentContainerStyle: {
       flex: 1,
-      justifyContent: "center",
+      justifyContent: 'center',
     },
   };
 
   const { colors } = useTheme();
-  const textStyle = {};
 
   const onSubmit = async () => {
     // Get Bluetooth permission
     console.log(Platform.OS);
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       const permissions = [
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
@@ -35,29 +33,27 @@ function WelcomeScreen({ navigation }) {
       try {
         const granted = await PermissionsAndroid.requestMultiple(permissions);
         console.log(granted);
-        for (const permission in granted) {
-          if (granted[permission] !== PermissionsAndroid.RESULTS.GRANTED) {
-            throw permission;
+        granted.forEach((perm) => {
+          if (granted[perm] !== PermissionsAndroid.RESULTS.GRANTED) {
+            throw perm;
           }
-        }
-        navigation.replace("Home");
+        });
       } catch (err) {
         console.warn(err);
       }
-    } else {
-      // TODO: iOS permission
-      navigation.replace("Home");
-    }
+    } // ios will request permission automatically
+
+    navigation.replace('Home');
   };
 
-  const appName = "JI Exposure";
+  const appName = 'JI Exposure';
 
   return (
     <View
       style={{
         flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: 'center',
+        justifyContent: 'center',
         margin: 20,
       }}
     >
@@ -77,7 +73,9 @@ function WelcomeScreen({ navigation }) {
                 Our code can be found on github at
               </Text>
               <TouchableOpacity
-                onPress={() => Linking.openURL('https://github.com/VE450-SU22-G21/DCT-app/')}
+                onPress={() => {
+                  Linking.openURL('https://github.com/VE450-SU22-G21/DCT-app/');
+                }}
               >
                 <Text variant="bodyLarge" style={{ color: 'blue' }}>
                   https://github.com/VE450-SU22-G21/DCT-app/
@@ -99,7 +97,7 @@ function WelcomeScreen({ navigation }) {
             <Text variant="bodyLarge">
               {appName} defend the health for both you and the people around you
               by notifying your risks of being infected with COVID-19.
-              {"\n\n"}
+              {'\n\n'}
               We fully esteem your personal privacy and safety. {appName} tracks
               exposures without occupying any personal or location data using
               BLE technology.
@@ -117,18 +115,19 @@ function WelcomeScreen({ navigation }) {
           </View>
           <ScrollView contentContainerStyle={styles.contentView}>
             <Text variant="bodyLarge">
-              {appName} uses BLE to let your phone recognize all the other{" "}
-              {appName} users around you.
-              {"\n\n"}
+              {appName}
+              uses BLE to let your phone recognize all the other {appName} users
+              around you.
+              {'\n\n'}
               {appName} saves key information of the phones nearby in an
               anonymous, local, and privacy-preserving way.
-              {"\n\n"}
+              {'\n\n'}
               If someone that are stored in your phone becomes infected, you are
               at risk of being infected. You would receive a notification.
-              {"\n\n"}
+              {'\n\n'}
               If you become infected, you can also report in the app and let
               others know.
-              {"\n\n"}
+              {'\n\n'}
               None of actions used by the app keeps records of your personal
               information. You are safe. And your privacy is well-preserved.
             </Text>
@@ -146,8 +145,9 @@ function WelcomeScreen({ navigation }) {
           </View>
           <ScrollView contentContainerStyle={styles.contentView}>
             <Text variant="bodyLarge">
-              To opt in, we need your bluetooth permission. For {appName} to
-              function correctly, please select “Allow all the time.”
+              To opt in, we need your bluetooth permission. For
+              {appName}
+              to function correctly, please select “Allow all the time.”
             </Text>
             <View>
               <Avatar.Icon
